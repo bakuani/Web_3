@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+<style>
+    .container {
+        margin-left: 8%;
+        margin-right: 8%;
+        display: grid;
+        grid-template-columns: 25% 25% 25% 25%;
+        grid-template-rows: auto auto auto 10% auto auto;
+        grid-template-areas:
+        "header header header header"
+        "x x sidebar sidebar"
+        "x x sidebar sidebar"
+        "error error . ."
+        "button button . ."
+        "footer footer footer footer";
+        height: 100vh;
+    }
+
+    .item {
+        padding: 1%;
+    }
+
+    .item_1 {
+        margin-left: 20%;
+        margin-right: 20%;
+        text-align: center;
+        padding: 1em 30px;
+        font-size: 80%;
+        color: #000000;
+        background-color: #C1FF9E;
+        grid-area: header;
+        width: auto;
+        margin-bottom: 3%;
+        border-radius: 30px;
+
+    }
+
+    .item_2 {
+        grid-area: x;
+        width: auto;
+        color: #000000;
+        border-top-left-radius: 15px;
+        padding: 5%;
+    }
+
+    .item_3 {
+        grid-area: y;
+        color: #000000;
+        padding: 5%;
+
+    }
+
+    .item_4 {
+        grid-area: r;
+        color: #000000;
+
+        padding: 5%;
+    }
+
+    path:hover {
+        fill: rgba(0, 255, 0, 0.5);
+        cursor: pointer;
+    }
+
+    polygon:hover {
+        fill: rgba(0, 255, 0, 0.5);
+        cursor: pointer;
+    }
+
+    rect:hover {
+        fill: rgba(0, 255, 0, 0.5);
+        cursor: pointer;
+    }
+
+    .item_5 {
+        grid-area: sidebar;
+        margin: auto;
+    }
+
+    .item_6 {
+        grid-area: footer;
+    }
+
+
+    .item_7 {
+        grid-area: button;
+        padding-bottom: 5%;
+        text-align: center;
+        border-bottom-left-radius: 15px;
+        border-bottom-right-radius: 15px;
+        color: #000000;
+    }
+
+    .item_8 {
+        grid-area: error;
+        text-align: center;
+        color: #B00000;
+        height: 100%;
+        overflow-wrap: break-word;
+        padding: 5px;
+        box-sizing: border-box;
+    }
+</style>
+
+<h:head>
+    <title>Графическая проверка точки</title>
+</h:head>
+<h:body>
+    <div class="container">
+        <div class="item item_1">
+            <h1>Джохадзе Анна Бекаевна</h1>
+            <h2>Группа: P3210</h2>
+            <h3>Варинат: 4789991</h3>
+        </div>
+        <h:form id="inputForm">
+
+            <div class="item item_2">
+                <div class="X">
+                    <h:selectOneRadio id="xValue" value="#{pointBean.newPoint.x}">
+                        <f:selectItem itemValue="-3" itemLabel="-3"/>
+                        <f:selectItem itemValue="-2" itemLabel="-2"/>
+                        <f:selectItem itemValue="-1" itemLabel="-1"/>
+                        <f:selectItem itemValue="0" itemLabel="0"/>
+                        <f:selectItem itemValue="1" itemLabel="1"/>
+                        <f:selectItem itemValue="2" itemLabel="2"/>
+                        <f:selectItem itemValue="3" itemLabel="3"/>
+                    </h:selectOneRadio>
+                </div>
+            </div>
+
+            <div class="item item_3">
+                <h:outputLabel for="yValue" value="Координата Y (-5 ... 5): "/>
+                <p:inputText id="yValue"
+                             value="#{pointBean.newPoint.y}">
+                    <f:validateDoubleRange minimum="-5" maximum="5"/>
+                </p:inputText>
+            </div>
+
+            <!-- Радиус R -->
+            <div class="item item_4">
+                <div class="R">
+                    <h:outputLabel for="rValue" value="Радиус R (0, 1, ... 3): "/>
+                    <p:spinner id="rValue" value="#{pointBean.newPoint.r}" min="0" max="3" step="0.1" />
+                </div>
+            </div>
+
+
+        </h:form>
+
+        <div class="item item_5">
+            <svg id="coordinate-plane" onclick="handleSvgClick(event)" width="300" height="300" viewBox="-150 -150 300 300"
+                 xmlns="http://www.w3.org/2000/svg">
+                <path d="M 0,-50 A 50,50 0 0 0 -50,0 L 0,0 Z" fill="rgba(39, 147, 236, 0.8)"/>
+
+                <rect x="-100" y="0" width="100" height="50" fill="rgba(39, 147, 236, 0.8)"/>
+
+                <polygon points="0,0 0,100 50,0" fill="rgba(39, 147, 236, 0.8)"/>
+
+                <line class="axis" x1="0" x2="0" y1="-150" y2="150" stroke="black" stroke-width="1"/>
+                <line class="axis" x1="-150" x2="150" y1="0" y2="0" stroke="black" stroke-width="1"/>
+
+                <!-- Метки на осях -->
+                <line class="axis" x1="50" x2="50" y1="-5" y2="5" stroke="black"/>
+                <line class="axis" x1="100" x2="100" y1="-5" y2="5" stroke="black"/>
+                <line class="axis" x1="-50" x2="-50" y1="-5" y2="5" stroke="black"/>
+                <line class="axis" x1="-100" x2="-100" y1="-5" y2="5" stroke="black"/>
+                <line class="axis" x1="-5" x2="5" y1="50" y2="50" stroke="black"/>
+                <line class="axis" x1="-5" x2="5" y1="100" y2="100" stroke="black"/>
+                <line class="axis" x1="-5" x2="5" y1="-50" y2="-50" stroke="black"/>
+                <line class="axis" x1="-5" x2="5" y1="-100" y2="-100" stroke="black"/>
+
+                <text x="105" y="-10" font-size="12">R</text>
+                <text x="-120" y="-10" font-size="12">-R</text>
+                <text x="55" y="-10" font-size="12">R/2</text>
+                <text x="-75" y="-10" font-size="12">-R/2</text>
+                <text x="10" y="-105" font-size="12">R</text>
+                <text x="10" y="115" font-size="12">-R</text>
+                <text x="10" y="-55" font-size="12">R/2</text>
+                <text x="10" y="65" font-size="12">-R/2</text>
+            </svg>
+        </div>
+
+        <div class="item item_6">
+            <p:dataTable id="resultTable" value="#{pointBean.results}" var="point" update="@form">
+                <p:column headerText="X">#{point.x}</p:column>
+                <p:column headerText="Y">#{point.y}</p:column>
+                <p:column headerText="R">#{point.r}</p:column>
+                <p:column headerText="Результат">
+                    <h:outputText value="#{point.hit ? 'Попадание' : 'Промах'}"/>
+                </p:column>
+            </p:dataTable>
+        </div>
+        <div class="item item_7">
+            <div>
+                <p:commandButton id="checkButton" value="Проверить" onclick="validate()" action="#{pointBean.addPoint()}" update="resultTable" styleClass="checkButton"/>
+            </div>
+        </div>
+        <div id="error" class="item item_8">
+        </div>
+    </div>
+</h:body>
+<h:outputScript library="js" name="script.js"/>
+</html>

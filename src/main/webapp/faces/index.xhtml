@@ -1,0 +1,50 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui">
+<h:head>
+    <title>Стартовая страница</title>
+    <style>
+        body {
+            background-color: #C1FF9E;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            text-align: center;
+        }
+
+        h1, h2 {
+            margin: 10px 0;
+            color: #333;
+        }
+    </style>
+</h:head>
+
+<h:body>
+    <h1>ФИО: Джохадзе Анна Бекаевна</h1>
+    <h2>Группа: P3210 | Вариант: 519370</h2>
+    <h:form id="clockForm">
+        <h:outputText id="clock" value="" style="font-size: 24px; font-weight: bold;"/>
+        <h:commandButton styleClass="Button" value="Перейти на основную страницу" action="main.xhtml?faces-redirect=true"/>
+    </h:form>
+</h:body>
+<h:outputScript>
+    function updateClock() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+
+        const formattedTime = hours + ":" + minutes + ":" + seconds;
+
+        document.getElementById('clockForm:clock').innerText = formattedTime;
+    }
+
+    setInterval(updateClock, 10000);
+
+    updateClock();
+</h:outputScript>
+</html>
