@@ -1,99 +1,72 @@
-const svg = document.querySelector('svg');
-const rect = svg.getBoundingClientRect();
-const svgWidth = rect.width;
-const svgHeight = rect.height;
-
-function handleSvg(event) {
-    const r = parseFloat(document.querySelector('#inputForm\\:rValue_input')?.value);
-
-    const x = event.clientX - rect.left - svgWidth / 2;
-    const y = svgHeight / 2 - (event.clientY - rect.top);
-
-    const scaledX = (x / (svgWidth / 2)) * r; // Преобразуем X в диапазон значений
-    const scaledY = (y / (svgHeight / 2)) * r; // Преобразуем Y в диапазон значений
-
-    document.querySelector('#inputForm\\:xValue input').value = scaledX.toFixed(2);
-    document.querySelector('#inputForm\\:yValue').value = scaledY.toFixed(2);
-
-    document.querySelector('#inputForm\\:submitButton').click();
-
-
-}
-
-let svgPointData = {
-    x: NaN,
-    y: NaN,
-    r: NaN,
-    inside: false
-};
-
-function setSvgPointData(x, y, r) {
-    svgPointData['x'] = x;
-    svgPointData['y'] = y;
-    svgPointData['r'] = r;
-}
-
-function clearSvgPointData() {
-    svgPointData['x'] = NaN;
-    svgPointData['y'] = NaN;
-    svgPointData['r'] = NaN;
-    svgPointData['inside'] = false;
-}
-
-function getScaledX(x, r) {
-    return ((x / (svgWidth / 2)) * r * 1.5);
-}
-
-function getScaledY(y, r) {
-    return ((y / (svgHeight / 2)) * r * 1.5);
-}
+let points = [];
 
 function validate() {
-    const x = document.querySelector('#inputForm\\:xValue input:checked')?.value;
-    const y = document.querySelector('#inputForm\\:yValue')?.value;
-    const r = document.querySelector('#inputForm\\:rValue_input')?.value;
-    const errorDiv = document.getElementById('error');
+    const x = parseFloat(document.querySelector('#inputForm\\:xValue input:checked')?.value);
+    const y = parseFloat(document.querySelector('#inputForm\\:yValue')?.value);
+    const r = parseFloat(document.querySelector('#inputForm\\:rValue_input')?.value);
 
-    let errorMessages = [];
-
-    if (!x) {
-        errorMessages.push('Ошибка: нужно выбрать координату X!');
-    }
-
-    if (!y || isNaN(y) || y < -5 || y > 5) {
-        errorMessages.push('Ошибка: Y должен быть числом от -5 до 5!');
-    }
-
-    if (!r || isNaN(r) || r <= 0 || r > 3) {
-        errorMessages.push('Ошибка: Радиус R должен быть от 0 до 3!');
-    }
-
-    if (errorMessages.length > 0) {
-        errorDiv.innerHTML = errorMessages.join('<br>');
-        errorDiv.style.display = 'block';
+    if (isNaN(x) || isNaN(y) || isNaN(r)) {
+        showError('Некорректные данные. Проверьте значения.');
         return;
-    } else {
-        errorDiv.textContent = '';
-        errorDiv.style.display = 'none';
     }
 
-    console.log('Валидация пройдена: X =', x, ', Y =', y, ', R =', r);
+    if (y < -5 || y > 5) {
+        showError('Координата Y должна быть в диапазоне от -5 до 5.');
+        return;
+    }
+
+    if (r < 0 || r > 3) {
+        showError('Радиус R должен быть в диапазоне от 0 до 3.');
+        return;
+    }
+
+    const hit = checkAreaHit(x, y, r);
+
+    points.push({x: x, y: y, r: r, hit: hit});
+
+    updateResultsTable(x, y, r, hit);
 }
 
+function checkAreaHit(x, y, r) {
+    if (x >= -r / 2 && x <= 0 && y <= r / 2 && y >= 0 && (x * x + y * y <= r * r)) {
+        return true;
+    }
+    if (x >= r && x <= 0 && y >= -r / 2 && y <= 0) {
+        return true;
+    }
+    if (x <= r / 2 && x >= 0 && y >= -r && y <= 0 && (y >= 2 * x - r)) {
+        return true;
+    }
+
+    return false;
+}
+
+function showError(message) {
+    document.getElementById('error').innerText = message;
+}
+
+function updateResultsTable(x, y, r, hit) {
+    let tableBody = document.querySelector('#resultTable tbody');
+    tableBody.innerHTML = '';
+
+    points.forEach(point => {
+        let row = document.createElement('tr');
+        row.innerHTML = `
+                <td>${point.x}</td>
+                <td>${point.y}</td>
+                <td>${point.r}</td>
+                <td>${point.hit ? 'Попадание' : 'Промах'}</td>
+            `;
+        tableBody.appendChild(row);
+    });
+}
 
 function handleSvgClick(event) {
-    const errorDiv = document.getElementById('error');
-    let errorMessages = [];
-    const r = document.querySelector('#inputForm\\:rValue_input')?.value;
+    const r = parseFloat(document.querySelector('#inputForm\\:rValue_input')?.value);
 
     if (isNaN(r)) {
-        errorMessages.push("Ошибка: радиус не выбран!");
-        errorDiv.innerHTML = errorMessages.join('<br>');
-        errorDiv.style.display = 'block';
+        showError('Радиус R не указан.');
         return;
-    } else {
-        errorDiv.textContent = '';
-        errorDiv.style.display = 'none';
     }
 
     const svg = event.currentTarget;
@@ -108,36 +81,23 @@ function handleSvgClick(event) {
     const y = centerY - (event.clientY - svgRect.top);
 
 
-    const scaledX = Number(((x * (svgWidth/4)) / r * 2).toFixed(2));
-    const scaledY = Number(((y * (svgHeight/4)) / r * 2).toFixed(2));
+    const scaledX = Number(((x / (svgWidth / 2)) * r * 2).toFixed(2));
+    const scaledY = Number(((y / (svgHeight / 2)) * r * 2).toFixed(2));
 
-    addPointToSVG(scaledX, scaledY, r); // Рисуем точку до получения ответа
+    const hit = checkAreaHit(scaledX, scaledY, r);
+
+    points.push({x: scaledX, y: scaledY, r: r, hit: hit});
+
+    updateResultsTable(scaledX, scaledY, r, hit);
+
+    drawPointOnSvg(x, y, r, hit);
 }
 
-function addPointToSVG(x, y, r) {
-    const svg = document.getElementById("coordinate-plane");
-
-    const xNormalized = x + 150;
-    const yNormalized = 150 - y;
-
-    const point = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    point.setAttribute('cx', xNormalized);
-    point.setAttribute('cy', yNormalized);
-    point.setAttribute('r', 2.5);
-    point.setAttribute('fill', isHit() ? 'green' : 'red');
-
-    svg.appendChild(point);
-}
-function isHit() {
-    const x = getScaledX(svgPointData['x'], svgPointData['r']);
-    const y = getScaledY(svgPointData['y'], svgPointData['r']);
-    const r = svgPointData['r'];
-
-    const isInRect = (x >= r && x <= 0 && y >= -r / 2 && y <= 0);
-
-    const isInCircle = (x >= -r / 2 && x <= 0 && y <= r / 2 && y >= 0 && (x * x + y * y <= r * r));
-
-    const isInTriangle = (x <= r / 2 && x >= 0 && y >= -r && y <= 0 && (y >= 2 * x - r));
-
-    return isInRect || isInCircle || isInTriangle;
+function drawPointOnSvg(x, y, r, hit) {
+    let circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circle.setAttribute("cx", x.toString());
+    circle.setAttribute("cy", -y.toString()); // инвертируем ось Y
+    circle.setAttribute("r", "2.5"); // радиус круга
+    circle.setAttribute("fill", hit ? "green" : "red");
+    document.getElementById("coordinate-plane").appendChild(circle);
 }
