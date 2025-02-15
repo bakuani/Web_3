@@ -1,9 +1,17 @@
 let points = [];
 
+let point = {x: NaN, y: NaN};
+let drawPoint = {drawX: NaN, drawY: NaN}
+
 function validate() {
-    const x = parseFloat(document.querySelector('#inputForm\\:xValue input:checked')?.value);
-    const y = parseFloat(document.querySelector('#inputForm\\:yValue')?.value);
+    let x = parseFloat(document.querySelector('#inputForm\\:xValue input:checked')?.value);
+    let y = parseFloat(document.querySelector('#inputForm\\:yValue')?.value);
     const r = parseFloat(document.querySelector('#inputForm\\:rValue_input')?.value);
+
+    if (!isNaN(point.x) && !isNaN(point.y)){
+        x = point.x;
+        y = point.y;
+    }
 
     if (isNaN(x) || isNaN(y) || isNaN(r)) {
         showError('Некорректные данные. Проверьте значения.');
@@ -25,6 +33,15 @@ function validate() {
     points.push({x: x, y: y, r: r, hit: hit});
 
     updateResultsTable(x, y, r, hit);
+
+    if (!isNaN(point.y) && !isNaN(point.x)){
+        drawPointOnSvg(drawPoint.drawX, drawPoint.drawY, r, hit);
+        drawPoint.drawX = NaN;
+        drawPoint.drawY = NaN;
+    }
+
+    point.x = NaN;
+    point.y = NaN;
 }
 
 function checkAreaHit(x, y, r) {
@@ -78,19 +95,18 @@ function handleSvgClick(event) {
     const centerY = svgHeight / 2;
 
     const x = event.clientX - svgRect.left - centerX;
+    drawPoint.drawX = x;
     const y = centerY - (event.clientY - svgRect.top);
-
+    drawPoint.drawY = y;
 
     const scaledX = Number(((x / (svgWidth / 2)) * r * 2).toFixed(2));
     const scaledY = Number(((y / (svgHeight / 2)) * r * 2).toFixed(2));
 
-    const hit = checkAreaHit(scaledX, scaledY, r);
+    point.x = scaledX;
+    point.y = scaledY;
 
-    points.push({x: scaledX, y: scaledY, r: r, hit: hit});
-
-    updateResultsTable(scaledX, scaledY, r, hit);
-
-    drawPointOnSvg(x, y, r, hit);
+    const button = document.getElementById('checkButton');
+    button.click();
 }
 
 function drawPointOnSvg(x, y, r, hit) {

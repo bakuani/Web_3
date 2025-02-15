@@ -14,7 +14,9 @@ public class PointDAO implements Serializable {
     public void save(Point point) {
         EntityManager entityManager = EntityManagerProvider.getEntityManager();
         entityManager.getTransaction().begin();
+
         entityManager.persist(point);
+
         entityManager.getTransaction().commit();
         entityManager.close();
     }

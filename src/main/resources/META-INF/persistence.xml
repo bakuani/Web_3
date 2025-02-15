@@ -9,7 +9,6 @@
             <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/postgres"/>
             <property name="javax.persistence.jdbc.user" value="postgres"/>
             <property name="javax.persistence.jdbc.password" value="Anna2005"/>
-            <property name="hibernate.current_session_context_class" value="jta"/>
 
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
             <property name="hibernate.hbm2ddl.auto" value="update"/>

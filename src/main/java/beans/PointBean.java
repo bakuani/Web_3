@@ -46,8 +46,6 @@ public class PointBean implements Serializable {
         }
     }
 
-
-    @Transactional
     public void addPoint() {
         try {
             logger.info("checking");
@@ -76,13 +74,5 @@ public class PointBean implements Serializable {
     public List<Point> getResults() {
         return results;
     }
-    public String getResultsAsJson() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            return objectMapper.writeValueAsString(results);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            return "[]";
-        }
-    }
+
 }
